@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Oficinas{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-building text-primary"></i> Reporte de Oficinas
+            </h2>
+            <p class="text-muted mb-0">Inventario y asignaciones por oficina</p>
+        </div>
+    </div>
+
+    <!-- Tarjetas de resumen -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total Oficinas</p>
+                            <h4 class="fw-bold mb-0">{{ total_oficinas }}</h4>
+                        </div>
+                        <div class="text-primary fs-1">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total Productos</p>
+                            <h4 class="fw-bold mb-0">{{ total_materiales }}</h4>
+                        </div>
+                        <div class="text-info fs-1">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total Asignaciones</p>
+                            <h4 class="fw-bold mb-0">{{ total_movimientos }}</h4>
+                        </div>
+                        <div class="text-warning fs-1">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Valor Total</p>
+                            <h4 class="fw-bold mb-0 text-success">${{ "%.2f"|format(valor_total) }}</h4>
+                        </div>
+                        <div class="text-success fs-1">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de oficinas -->
+    {% for oficina in oficinas %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white py-3">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>{{ oficina.nombre }}
+                    </h5>
+                    <small class="opacity-75">
+                        <i class="fas fa-map-marker-alt me-1"></i>{{ oficina.ubicacion }}
+                        {% if oficina.region %} | {{ oficina.region }}{% endif %}
+                    </small>
+                </div>
+                <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                    <span class="badge bg-light text-dark me-2">
+                        <i class="fas fa-boxes me-1"></i>{{ oficina.total_materiales }} productos
+                    </span>
+                    <span class="badge bg-light text-dark">
+                        <i class="fas fa-exchange-alt me-1"></i>{{ oficina.total_movimientos }} asignaciones
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- Productos corporativos -->
+            {% if oficina.materiales %}
+            <div class="mb-4">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0">
+                        <i class="fas fa-laptop text-primary me-2"></i>Productos Corporativos Asignados
+                    </h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="small">Código</th>
+                                <th class="small">Producto</th>
+                                <th class="small">Descripción</th>
+                                <th class="small text-center">Cantidad</th>
+                                <th class="small text-end">Valor Unit.</th>
+                                <th class="small text-end">Valor Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for material in oficina.materiales %}
+                            <tr>
+                                <td class="small">{{ material.codigo }}</td>
+                                <td class="small fw-bold">{{ material.nombre }}</td>
+                                <td class="small text-muted">{{ material.descripcion[:50] }}...</td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary small">{{ material.cantidad }}</span>
+                                </td>
+                                <td class="small text-end">${{ "%.2f"|format(material.valor_unitario) }}</td>
+                                <td class="small text-end fw-bold text-success">${{ "%.2f"|format(material.valor_total) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="5" class="text-end fw-bold">TOTAL:</td>
+                                <td class="text-end fw-bold text-success">
+                                    ${{ "%.2f"|format(oficina.valor_total) }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>No hay productos corporativos asignados a esta oficina
+            </div>
+            {% endif %}
+
+            <!-- Historial de asignaciones -->
+            {% if oficina.movimientos %}
+            <div>
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0">
+                        <i class="fas fa-history text-warning me-2"></i>Historial de Asignaciones
+                    </h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="small">Fecha</th>
+                                <th class="small">Acción</th>
+                                <th class="small">Material</th>
+                                <th class="small text-center">Cantidad</th>
+                                <th class="small">Usuario</th>
+                                <th class="small">Observaciones</th>
+                                <th class="small text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movimiento in oficina.movimientos %}
+                            <tr>
+                                <td class="small text-muted">
+                                    {% if movimiento.fecha %}
+                                        {{ movimiento.fecha.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if movimiento.accion == 'CONFIRMACION' %}
+                                        <span class="badge bg-success small py-1 px-2">{{ movimiento.accion }}</span>
+                                    {% elif movimiento.accion == 'ASIGNAR' %}
+                                        <span class="badge bg-success small py-1 px-2">{{ movimiento.accion }}</span>
+                                    {% elif movimiento.accion == 'DEVOLUCION' %}
+                                        <span class="badge bg-danger small py-1 px-2">{{ movimiento.accion }}</span>
+                                    {% else %}
+                                        <span class="badge bg-info small py-1 px-2">{{ movimiento.accion }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small">{{ movimiento.material }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary small py-1 px-2">{{ movimiento.cantidad }}</span>
+                                </td>
+                                <td class="small">{{ movimiento.usuario }}</td>
+                                <td class="small text-muted" style="max-width: 200px;">
+                                    <span class="text-truncate d-inline-block" style="max-width: 180px;" 
+                                          title="{{ movimiento.observaciones }}">
+                                        {{ movimiento.observaciones }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    {% if movimiento.accion == 'CONFIRMACION' and movimiento.asignacion_id %}
+                                        <a href="/reportes/certificado/{{ movimiento.asignacion_id }}" 
+                                           class="btn btn-success btn-sm" 
+                                           target="_blank"
+                                           title="Descargar certificado de asignación">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No hay historial de asignaciones para esta oficina
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if not oficinas %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>No se encontraron oficinas activas
+    </div>
+    {% endif %}
+
+    <!-- Botón volver -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="/reportes" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver a Reportes
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
